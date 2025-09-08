@@ -1,0 +1,44 @@
+% Discrete-Time Convolution Visualization (Modified Version)
+x = [7 8 9];         % Input signal x[n]
+h = [1 1];           % Impulse response h[n]
+N = length(x) + length(h) - 1;   % Panjang hasil konvolusi
+
+y = zeros(1, N);     % Inisialisasi output konvolusi
+
+figure;
+for n = 0:N-1
+    clf;
+    k = 0:N-1;                   % index range
+    hk = fliplr(h);              % Flip h[n]
+    hk_shifted = zeros(1, N);    % buffer untuk shift
+
+    % Geser h[n]
+    for i = 1:length(h)
+        if (n - i + 1 >= 1) && (n - i + 1 <= N)
+            hk_shifted(n - i + 1) = hk(i);
+        end
+    end
+
+    % Padding x
+    x_padded = [x zeros(1, N - length(x))];
+
+    % Perkalian elemen
+    product = x_padded .* hk_shifted;
+    y_n = sum(product);
+    y(n+1) = y_n;   % Simpan hasil y[n]
+
+    % Plot
+    subplot(4,1,1); stem(0:length(x)-1, x, 'filled');
+    title('x[n]'); ylim([0 max(x)+2]); xlim([0 N-1]);
+
+    subplot(4,1,2); stem(k, hk_shifted, 'filled');
+    title(['h[n-' num2str(n) '] (flipped & shifted)']); ylim([0 max(h)+2]); xlim([0 N-1]);
+
+    subplot(4,1,3); stem(k, product, 'filled');
+    title(['x[k] * h[n-k], sum = ' num2str(y_n)]); ylim([0 max(product)+5]); xlim([0 N-1]);
+
+    subplot(4,1,4); stem(0:N-1, y, 'filled');
+    title('Output y[n] (hasil konvolusi secara bertahap)'); ylim([0 max(y)+5]); xlim([0 N-1]);
+
+    pause(1);  % Animasi step by step
+end
